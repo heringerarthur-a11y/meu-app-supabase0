@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Seguro - Tarefas</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .user-info { font-size: 0.8rem; color: #94a3b8; }
+        
+        #lista-tarefas { margin-top: 25px; text-align: left; }
+        
+        .tarefa-card { 
+            background: #334155; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 10px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .btn-delete { 
+            background: #ef4444; 
+            width: auto; 
+            padding: 5px 10px; 
+            font-size: 0.7rem; 
+            margin: 0;
+        }
+
+        .logout-btn { background: transparent; color: #f87171; border: 1px solid #f87171; width: auto; padding: 5px 15px; }
+    </style>
+</head>
+<body>
+    <div class="card" style="width: 100%; max-width: 500px; margin-top: 20px;">
+    <h3>Assistente IA</h3>
+    <div id="chat-container"></div>
+    <div class="chat-input-area" style="display: flex; gap: 10px;">
+        <input type="text" id="chat-input" placeholder="Pergunte algo à IA...">
+        <button id="btn-enviar" style="width: auto; margin: 0;">Enviar</button>
+    </div>
+</div>
+
+<script type="module">
+    import { enviarMensagem } from './assets/js/chat.js';
+    
+    const container = document.getElementById('chat-container');
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('btn-enviar');
+
+    btn.onclick = async () => {
+        if (!input.value) return;
+        const msg = input.value;
+        input.value = ''; // Limpa o campo logo para dar sensação de rapidez
+        await enviarMensagem(msg, container);
+    };
+
+    input.onkeypress = (e) => { if (e.key === 'Enter') btn.click(); };
+</script>
+
+    <div class="card" style="width: 100%; max-width: 500px;">
+        <div class="header">
+            <h3>Minhas Tarefas</h3>
+            <button class="logout-btn" id="btn-logout">Sair</button>
+        </div>
+        
+        <div class="user-info" id="user-email">Carregando usuário...</div>
+        
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 20px 0;">
+
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="nova-tarefa" placeholder="O que você vai fazer hoje?" style="margin: 0;">
+            <button id="btn-add" style="width: auto; margin: 0; padding: 0 20px;">+</button>
+        </div>
+
+        <div id="lista-tarefas">
+            </div>
+    </div>
+
+    <script type="module">
+        import { SUPABASE_CONFIG } from './assets/js/config.js';
+
+        // Inicializa o cliente
+        const supabaseClient = supabase.createClient(SUPABASE_CONFIG.URL, SUPABASE_CONFIG.KEY);
+
+        const listaElement = document.getElementById('lista-tarefas');
+        const inputTarefa = document.getElementById('nova-tarefa');
+
+        // 1. VERIFICAR SE O USUÁRIO ESTÁ LOGADO (PROTEGER PÁGINA)
+        async function protegerRota() {
+            const { data: { user } } = await
+
+
+
+
+
+            <div class="card" style="width: 500px;">
+    <h3>AI ChatBox</h3>
+    <div id="chat-container"></div>
+    
+    <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Digite sua mensagem...">
+        <button id="btn-enviar" style="width: auto;">Enviar</button>
+    </div>
+</div>
+
+<script type="module">
+    import { enviarMensagem } from './assets/js/chat.js';  
+
+        const container = document.getElementById('chat-container');
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('btn-enviar');
+
+    btn.onclick = () => {
+        if (!input.value) return;
+        enviarMensagem(input.value, container);
+        input.value = '';
+    };
+
+    // Permitir enviar com "Enter"
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') btn.click();
+    });
+</script>
+// Dentro do seu <script type="module"> no dashboard.html
+
+import { enviarMensagem, carregarHistorico } from './assets/js/chat.js';
+
+async function protegerRota() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    
+    if (!user) {
+        window.location.href = 'index.html';
+    } else {
+        document.getElementById('user-email').innerText = `Logado como: ${user.email}`;
+        
+        // --- ADICIONE ESTA LINHA ---
+        const chatContainer = document.getElementById('chat-container');
+        carregarHistorico(chatContainer);
+        // ---------------------------
+        
+        buscarTarefas(); // Suas tarefas continuam carregando normalmente
+    }
+
+}
+
+// No seu dashboard.html, dentro do script de proteção de rota
+async function protegerRota() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    
+    if (!user) {
+        window.location.href = 'index.html';
+    } else {
+        const chatContainer = document.getElementById('chat-container');
+        
+        // 1. Carrega o que já foi conversado
+        await carregarHistorico(chatContainer);
+        
+        // 2. Se o chat estiver vazio, a IA se apresenta
+        if (chatContainer.children.length === 0) {
+            const saudacao = "Olá! Eu sou sua IA assistente. Como posso ajudar no seu projeto hoje?";
+            // Renderizamos apenas visualmente para não encher o banco sem necessidade
+            renderizarMsg(saudacao, 'ai', chatContainer); 
+        }
+        
+        buscarTarefas();
+    }
+}

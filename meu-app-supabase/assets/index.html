@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>App Modular - Login</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <div class="card" id="auth-container">
+        <h2>Acessar Sistema</h2>
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="password" placeholder="Senha">
+        <button id="btn-login">Entrar</button>
+        <button id="btn-signup" class="secondary">Criar Conta</button>
+        <p id="msg-feedback"></p>
+    </div>
+
+    <script type="module">
+        import { cadastrarUsuario, logarUsuario } from './assets/js/auth.js';
+
+        const emailInput = document.getElementById('email');
+        const passInput = document.getElementById('password');
+        const feedback = document.getElementById('msg-feedback');
+
+        document.getElementById('btn-signup').onclick = async () => {
+            try {
+                await cadastrarUsuario(emailInput.value, passInput.value);
+                feedback.innerText = "Sucesso! Verifique seu e-mail.";
+                feedback.className = "success";
+            } catch (err) {
+                feedback.innerText = err.message;
+                feedback.className = "error";
+            }
+        };
+
+        document.getElementById('btn-login').onclick = async () => {
+            try {
+                await logarUsuario(emailInput.value, passInput.value);
+                // Se logar, mandamos para o dashboard real
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                feedback.innerText = err.message;
+                feedback.className = "error";
+            }
+        };
+    </script>
+</body>
+</html>
